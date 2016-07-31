@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{0753B037-FD5A-C6C2-2107-6DC31BA8889B}") = "Nebula-master", "Assembly-CSharp.csproj", "{EE09834D-4666-6345-F13E-E5F5BE26B4DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE09834D-4666-6345-F13E-E5F5BE26B4DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE09834D-4666-6345-F13E-E5F5BE26B4DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE09834D-4666-6345-F13E-E5F5BE26B4DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE09834D-4666-6345-F13E-E5F5BE26B4DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
