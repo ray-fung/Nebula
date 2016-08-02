@@ -61,4 +61,9 @@ public class BaseScript : MonoBehaviour {
         if(score == 0) { return new Vector3(0, -100, 0); } //if this is the first asteroid, return a vector beneath the rocket
         return GetMainAsteroid().transform.position;
     }
+
+    public void IncreaseScore()
+    {
+        score++;
+    }
 }

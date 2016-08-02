@@ -1,7 +1,7 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nebula.CSharp", "Nebula.CSharp.csproj", "{B993C511-55E7-9AF2-BFF2-B070C0BC4B37}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{9DE3DEB1-85DB-08AB-775D-3FA8AD6AED8E}") = "Nebula", "Assembly-CSharp.csproj", "{896D5220-9E3D-B664-A651-27091BD89A01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +9,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B993C511-55E7-9AF2-BFF2-B070C0BC4B37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B993C511-55E7-9AF2-BFF2-B070C0BC4B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B993C511-55E7-9AF2-BFF2-B070C0BC4B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B993C511-55E7-9AF2-BFF2-B070C0BC4B37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{896D5220-9E3D-B664-A651-27091BD89A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{896D5220-9E3D-B664-A651-27091BD89A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{896D5220-9E3D-B664-A651-27091BD89A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{896D5220-9E3D-B664-A651-27091BD89A01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
 	EndGlobalSection
 EndGlobal

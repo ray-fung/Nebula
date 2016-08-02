@@ -42,6 +42,8 @@ public class RocketScript : MonoBehaviour {
     {
         GetComponent<Rigidbody2D>().velocity = Vector3.zero; //set velocity to 0
         rotationCenter =  asteroid.transform.position; //set rotation center to asteroid center
+        transform.parent.GetComponent<BaseScript>().IncreaseScore(); // Increase the score by one when hit new asteroid
+        //Time.timeScale = 0;
     }
 
     /// <summary>
