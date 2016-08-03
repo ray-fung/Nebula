@@ -5,16 +5,20 @@ public class BaseScript : MonoBehaviour {
 
     private int score; //score (number of asteroids landed on)
     public float cameraSpeed; //speed for camera movement
-    public float cameraDistanceFromAsteroid; //distance the camera stops from the asteroid
+    public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
     public Vector3 asteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
+    public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
+    public float yAreaAsteroidSpawn; //y distance to vary spawning asteroid
+    public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         score = 0;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
         UpdateCameraVelocity();
 	}
 
@@ -26,9 +30,10 @@ public class BaseScript : MonoBehaviour {
         Camera mainCamera = GameObject.FindObjectOfType<Camera>(); //get camera
         if (mainCamera.GetComponent<Rigidbody2D>().velocity != Vector2.zero) //if velocity is not zero, check velocity
         {
+            //check asteroid y position
             float asteroidPosY = GetMainAsteroid().transform.position.y; //main asteroid y position
             float cameraPosY = mainCamera.transform.position.y; //main camera y position
-            if(cameraPosY - asteroidPosY >= cameraDistanceFromAsteroid) //if camera is far enough from asteroid, set velocity to 0
+            if (cameraPosY - asteroidPosY >= cameraYDistanceFromAsteroid) //if camera y is far enough from asteroid, set y velocity to 0
             {
                 mainCamera.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             }
@@ -62,6 +67,9 @@ public class BaseScript : MonoBehaviour {
         return GetMainAsteroid().transform.position;
     }
 
+    /// <summary>
+    /// Increase the score by one (when the rocket hits an asteroid)
+    /// </summary>
     public void IncreaseScore()
     {
         score++;
