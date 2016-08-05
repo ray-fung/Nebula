@@ -18,14 +18,20 @@ public class RocketScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+<<<<<<< HEAD
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
 
         if (rotationCenter != null) //rotate the rocket (only if rocket is currently orbiting an asteroid)
+=======
+        //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
+        if (rotationCenter != null)
+>>>>>>> c43f98206c3cefb9fe59d1c246a8d0b2fad03536
         {
             float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z; //get rotation speed from base script (float)
             transform.RotateAround((Vector3)rotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime); //rotates rocket around rotationCenter
         }
 
+        //read tap input
         foreach (Touch t in Input.touches)
         {
             if (t.phase == TouchPhase.Began)
@@ -42,13 +48,31 @@ public class RocketScript : MonoBehaviour {
         }
     }
 
-    //collision with asteroid
-    void OnTriggerEnter2D(Collider2D asteroid)
+    //collision with asteroid (called by AsteroidScript to ensure correct call order)
+    public void CollidedWithAsteroid(GameObject asteroid)
     {
         GetComponent<Rigidbody2D>().velocity = Vector3.zero; //set velocity to 0
         rotationCenter =  asteroid.transform.position; //set rotation center to asteroid center
         transform.parent.GetComponent<BaseScript>().IncreaseScore(); // Increase the score by one when hit new asteroid
-        //Time.timeScale = 0;
+        //Time.timescale = 0;
+        UpdateRocketDirection(asteroid);
+    }
+
+    /// <summary>
+    /// Updates the rockes
+    /// </summary>
+    /// <param name="asteroid">GameObject representing the asteroid the rocket is aligning itself to</param>
+    void UpdateRocketDirection(GameObject asteroid)
+    {
+        Vector3 currentPos = transform.position; //get rocket center
+        currentPos.z = 0;
+        Vector3 asteroidCenter = asteroid.transform.position; //get asteroid center
+        asteroidCenter.z = 0;
+
+        //calculate vector between rocket and asteroid (direction to orient rocket)
+        Vector3 rocketAsteroidVector = currentPos - asteroidCenter;
+
+        transform.up = rocketAsteroidVector;
     }
 
     /// <summary>

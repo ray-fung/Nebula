@@ -22,26 +22,54 @@ public class AsteroidScript : MonoBehaviour {
         if (toBeDestroyed) //if delayed destruction has been triggered, update timer and destroy the asteroid
         {
             destroyTimer -= Time.deltaTime;
-            if(destroyTimer <= 0) { DestroyObject(this); }
+            if(destroyTimer <= 0) { DestroyObject(gameObject); } //destroy game object (clean up scene)
         }
     }
 
     //collision with rocket
     void OnTriggerEnter2D(Collider2D rocket)
     {
-        MoveCamera(GetComponentInParent<BaseScript>().cameraSpeed); //move the camera
-        GameObject mainAsteroid = transform.parent.GetComponent<BaseScript>().GetMainAsteroid(); //get current main asteroid
-        if (mainAsteroid != null) //if a main asteroid does exist
+        if (!isMain) //only trigger collision if this is not the main asteroid (otherwise, it's an invalid collison)
         {
-            mainAsteroid.GetComponent<AsteroidScript>().SelfDestructDelayed(0.25f); //destroy current main asteroid (delayed destruction) 
+            MoveCamera(GetComponentInParent<BaseScript>().cameraSpeed); //move the camera
+            CloneNewAsteroid();
+            GameObject mainAsteroid = GetComponentInParent<BaseScript>().GetMainAsteroid(); //get current main asteroid
+            if (mainAsteroid != null) //if a main asteroid exists
+            {
+                DestroyObject(mainAsteroid); //destroy old asteroid (clean up scene); //destroy current main asteroid (clean up code) 
+            }
+            isMain = true; //make this the main asteroid
+            GameObject.Find("Rocket").GetComponent<RocketScript>().CollidedWithAsteroid(gameObject); //update rocket
         }
-        isMain = true; //make this the main asteroid
+    }
+
+    /// <summary>
+    /// Clones a new asteroid above the one the rocket just landed on
+    /// </summary>
+    private void CloneNewAsteroid()
+    {
+        GameObject newAsteroid = Instantiate(gameObject); //instantiate clone
+        newAsteroid.name = "Asteroid"; //don't name the clone "Asteroid (clone)"
+        newAsteroid.transform.SetParent(GameObject.Find("Base").transform); //set new asteroid to be a child of Base gameobject
+        newAsteroid.transform.localScale = transform.localScale; //set new asteroid's size to be the same as the current asteroid's size
+
+        //get spawn values from Base gameobject
+        float xSpawn = GetComponentInParent<BaseScript>().xAreaAsteroidSpawn / 2;
+        float minYSpawn = GetComponentInParent<BaseScript>().minYAwayAsteroidSpawn;
+        float maxYSpawn = minYSpawn + GetComponentInParent<BaseScript>().yAreaAsteroidSpawn;
+
+        //generate random position value and set new asteroid's position to that position
+        Vector3 newAsteroidPos = transform.position; //set starting position to current asteroid position (y position is relative to this)
+        newAsteroidPos.y += Random.Range(minYSpawn, maxYSpawn);
+        newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
+        newAsteroid.transform.position = newAsteroidPos;
     }
 
     /// <summary>
     /// Move the camera upwards
     /// </summary>
     /// <param name="speed">Speed of the camera movement</param>
+    /// <param name="asteroidToMoveTo">GameObject of asteroid the camera is centering around</param>
     private void MoveCamera(float speed)
     {
         Camera mainCamera = GameObject.FindObjectOfType<Camera>(); //get main camera
@@ -57,6 +85,7 @@ public class AsteroidScript : MonoBehaviour {
     /// <param name="dealySeconds">Time in seconds to delay destruction</param>
     public void SelfDestructDelayed(float delaySeconds)
     {
+        toBeDestroyed = true;
         destroyTimer = delaySeconds;
     }
 }
