@@ -18,14 +18,11 @@ public class RocketScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-<<<<<<< HEAD
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
 
         if (rotationCenter != null) //rotate the rocket (only if rocket is currently orbiting an asteroid)
-=======
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
->>>>>>> c43f98206c3cefb9fe59d1c246a8d0b2fad03536
         {
             float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z; //get rotation speed from base script (float)
             transform.RotateAround((Vector3)rotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime); //rotates rocket around rotationCenter
