@@ -5,17 +5,22 @@ public class RocketScript : MonoBehaviour {
 
     public int rocketSpeed; //speed for rocket movement
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
+    bool beginGame;
+    
 
 	// Use this for initialization
 	void Start ()
     {
         rotationCenter = null;
-	}
+        beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if(rotationCenter != null) //rotate the rocket (only if rocket is currently orbiting an asteroid)
+        beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
+
+        if (rotationCenter != null) //rotate the rocket (only if rocket is currently orbiting an asteroid)
         {
             float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z; //get rotation speed from base script (float)
             transform.RotateAround((Vector3)rotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime); //rotates rocket around rotationCenter
@@ -30,7 +35,7 @@ public class RocketScript : MonoBehaviour {
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) & beginGame)
         {
             //if spacebar is presssed, shoot the rocket (for dev testing)
             ShootRocket();
