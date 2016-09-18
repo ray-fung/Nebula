@@ -22,6 +22,16 @@ public class UIController : MonoBehaviour {
 
         ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
+        foreach (Touch t in Input.touches)
+        {
+            if (t.phase == TouchPhase.Began)
+            {
+                //if they've tapped the play button, start the game
+                animator.SetTrigger("PlayButton");
+            }
+        }
+
+        //check mouse click on Play button (for debug purposes)
         if (Input.GetMouseButtonDown(0) & hit == Physics2D.Raycast(ray.origin, new Vector2(0,0)))
         {
             Debug.Log("Play");

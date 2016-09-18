@@ -31,7 +31,9 @@ public class AsteroidScript : MonoBehaviour {
     {
         if (!isMain) //only trigger collision if this is not the main asteroid (otherwise, it's an invalid collison)
         {
-            MoveCamera(GetComponentInParent<BaseScript>().cameraSpeed); //move the camera
+            BaseScript baseScript = GetComponentInParent<BaseScript>();
+
+            MoveCamera(baseScript.cameraSpeed); //move the camera
             CloneNewAsteroid();
             GameObject mainAsteroid = GetComponentInParent<BaseScript>().GetMainAsteroid(); //get current main asteroid
             if (mainAsteroid != null) //if a main asteroid exists
@@ -40,6 +42,8 @@ public class AsteroidScript : MonoBehaviour {
             }
             isMain = true; //make this the main asteroid
             GameObject.Find("Rocket").GetComponent<RocketScript>().CollidedWithAsteroid(gameObject); //update rocket
+            baseScript.IncreaseScore(); //increase score
+            baseScript.UpdateDifficulty();
         }
     }
 

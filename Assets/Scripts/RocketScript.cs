@@ -19,8 +19,7 @@ public class RocketScript : MonoBehaviour {
 	void Update ()
     {
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
-
-        if (rotationCenter != null) //rotate the rocket (only if rocket is currently orbiting an asteroid)
+        
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
         {
@@ -43,6 +42,23 @@ public class RocketScript : MonoBehaviour {
             //if spacebar is presssed, shoot the rocket (for dev testing)
             ShootRocket();
         }
+
+        CheckIfDead(); //checks if the player has died
+    }
+
+    /// <summary>
+    /// Checks if the player has died (i.e. the rocket has missed the asteroid) and takes action if they have
+    /// </summary>
+    private void CheckIfDead()
+    {
+        Camera mainCamera = GameObject.FindObjectOfType<Camera>(); //main camera object
+        float xDifference = Mathf.Abs(mainCamera.transform.position.x - this.transform.position.x); //difference in x position of rocket and camera
+        float yDifference = Mathf.Abs(mainCamera.transform.position.y - this.transform.position.y); //difference in y position of rocket and camera
+
+        if (xDifference > 200 || yDifference > 350) //if the rocket is more or less outside camera bounds, return to menu screen (start new game)
+        {
+            GetComponentInParent<BaseScript>().StartNewGame(); //return to menu and start new game
+        }
     }
 
     //collision with asteroid (called by AsteroidScript to ensure correct call order)
@@ -50,7 +66,6 @@ public class RocketScript : MonoBehaviour {
     {
         GetComponent<Rigidbody2D>().velocity = Vector3.zero; //set velocity to 0
         rotationCenter =  asteroid.transform.position; //set rotation center to asteroid center
-        transform.parent.GetComponent<BaseScript>().IncreaseScore(); // Increase the score by one when hit new asteroid
         //Time.timescale = 0;
         UpdateRocketDirection(asteroid);
     }
