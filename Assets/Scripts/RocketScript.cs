@@ -1,110 +1,92 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RocketScript : MonoBehaviour {
+public class RocketScript : MonoBehaviour, IRocket {
 
-    public int rocketSpeed; //speed for rocket movement
+    [SerializeField] public int rocketSpeed; //speed for rocket movement
+
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
-    bool beginGame;
-    
+    private bool beginGame;
+    private IInputManager inputManager;
+    private IBase baseScript;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
         rotationCenter = null;
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
+        inputManager = gameObject.GetComponentInParent<InputManager>();
+        baseScript = gameObject.GetComponentInParent<BaseScript>();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
-        
+
+        // Check rocket going off-screen to trigger failed landing
+        if (baseScript.IsOnScreen(transform.localPosition))
+        {
+            baseScript.RegisterFailedLanding();
+        }
+
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
         {
-            float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z; //get rotation speed from base script (float)
-            transform.RotateAround((Vector3)rotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime); //rotates rocket around rotationCenter
+            float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z;
+            Vector3 convertedRotationCenter = transform.parent.TransformVector((Vector3)rotationCenter);
+            transform.RotateAround(convertedRotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime);
         }
 
-        //read tap input
-        foreach (Touch t in Input.touches)
+        // Listen to input to shoot the rocket
+        if (beginGame && inputManager.GetRocketInput())
         {
-            if (t.phase == TouchPhase.Began)
-            {
-                //if they've tapped the screen, shoot the rocket
-                ShootRocket();
-            }
-        }
+            // Calculate the direction to fire the rocket
+            Vector3 asteroidPosition = rotationCenter ?? new Vector3(0, -1000, 0); // Default to shooting straight up
+            Vector3 posVector = transform.localPosition;
+            asteroidPosition.z = 0;
+            posVector.z = 0;
 
-        if (Input.GetKeyDown(KeyCode.Space) & beginGame)
+            Vector3 movementVector = (posVector - asteroidPosition).normalized;
+            transform.GetComponent<Rigidbody2D>().velocity = movementVector * rocketSpeed;
+
+            rotationCenter = null;
+        }
+    }
+
+    // Collision with another object
+    void OnTriggerEnter2D(Collider2D collidingObject)
+    {
+        // Collision if it's an asteroid and we're not orbiting it
+        AsteroidScript asteroid = collidingObject.gameObject.GetComponent<AsteroidScript>();
+        if (asteroid != null && asteroid.transform.localPosition != rotationCenter)
         {
-            //if spacebar is presssed, shoot the rocket (for dev testing)
-            ShootRocket();
-        }
+            // Update orbit            
+            GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+            rotationCenter = asteroid.transform.localPosition;
 
-        CheckIfDead(); //checks if the player has died
-    }
+            // Update rocket rotation (relative to asteroid)
+            Vector3 currentPos = transform.localPosition;
+            Vector3 asteroidCenter = asteroid.transform.localPosition;
+            currentPos.z = 0;
+            asteroidCenter.z = 0;
+            transform.up = currentPos - asteroidCenter;
 
-    /// <summary>
-    /// Checks if the player has died (i.e. the rocket has missed the asteroid) and takes action if they have
-    /// </summary>
-    private void CheckIfDead()
-    {
-        Camera mainCamera = GameObject.FindObjectOfType<Camera>(); //main camera object
-        float xDifference = Mathf.Abs(mainCamera.transform.position.x - this.transform.position.x); //difference in x position of rocket and camera
-        float yDifference = Mathf.Abs(mainCamera.transform.position.y - this.transform.position.y); //difference in y position of rocket and camera
-
-        if (xDifference > 200 || yDifference > 350) //if the rocket is more or less outside camera bounds, return to menu screen (start new game)
-        {
-            GetComponentInParent<BaseScript>().StartNewGame(); //return to menu and start new game
+            baseScript.RegisterSuccessfulLanding(asteroid);
         }
     }
 
-    //collision with asteroid (called by AsteroidScript to ensure correct call order)
-    public void CollidedWithAsteroid(GameObject asteroid)
+    public IRocket CreateRocket(Transform parent, Vector3 position)
     {
-        GetComponent<Rigidbody2D>().velocity = Vector3.zero; //set velocity to 0
-        rotationCenter =  asteroid.transform.position; //set rotation center to asteroid center
-        //Time.timescale = 0;
-        UpdateRocketDirection(asteroid);
+        GameObject newRocket = Instantiate(gameObject, parent);
+        newRocket.transform.localPosition = position;
+        newRocket.transform.rotation = new Quaternion(0, 0, 0, 0);
+        newRocket.name = "Rocket";
+        return newRocket.GetComponent<RocketScript>();
     }
 
-    /// <summary>
-    /// Updates the rockes
-    /// </summary>
-    /// <param name="asteroid">GameObject representing the asteroid the rocket is aligning itself to</param>
-    void UpdateRocketDirection(GameObject asteroid)
+    public void DestroyInstance()
     {
-        Vector3 currentPos = transform.position; //get rocket center
-        currentPos.z = 0;
-        Vector3 asteroidCenter = asteroid.transform.position; //get asteroid center
-        asteroidCenter.z = 0;
-
-        //calculate vector between rocket and asteroid (direction to orient rocket)
-        Vector3 rocketAsteroidVector = currentPos - asteroidCenter;
-
-        transform.up = rocketAsteroidVector;
-    }
-
-    /// <summary>
-    /// shoots the rocket perpendicular to the current asteroid
-    /// </summary>
-    private void ShootRocket()
-    {
-        rotationCenter = null; //set rotation center to null to prevent rotation
-        BaseScript baseScript = transform.parent.GetComponent<BaseScript>(); //base game script
-
-        //current position
-        Vector3 posVector = transform.position;
-        posVector.z = 0; //make sure z is 0, since we don't want any movement in the z axis
-
-        //main asteroid's position
-        Vector3 asteroidPosition = baseScript.GetCenterOfMainAsteroid();
-        asteroidPosition.z = 0; //make sure z is 0, since we don't want any movement in the z axis 
-
-        //calculate resultant vector
-        Vector3 movementVector = (posVector - asteroidPosition).normalized;
-        transform.GetComponent<Rigidbody2D>().velocity = movementVector * rocketSpeed;
+        Destroy(gameObject);
     }
 }
