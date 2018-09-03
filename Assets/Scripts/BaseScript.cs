@@ -34,7 +34,7 @@ public class BaseScript : MonoBehaviour, IBase {
         // Update the camera velocity
         if (mainCamera.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
         {
-            float asteroidPosY = GetMainAsteroid().transform.localPosition.y;
+            float asteroidPosY = asteroids.Peek().GetPosition().y;
             float cameraPosY = mainCamera.transform.localPosition.y;
             if (cameraPosY - asteroidPosY >= cameraYDistanceFromAsteroid)
             {
@@ -94,23 +94,5 @@ public class BaseScript : MonoBehaviour, IBase {
         float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
         float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
         return (xDifference > 30 || yDifference > 40);
-    }
-
-    /// <summary>
-    /// Get the main asteroid
-    /// </summary>
-    /// <returns>The main asteroid of the scene (null if not found)</returns>
-    public GameObject GetMainAsteroid()
-    {
-        //iterate through all asteroid objects
-        GameObject[] allAsteroids = GameObject.FindGameObjectsWithTag("Asteroid");
-        if(allAsteroids.Length > 0)
-        {
-            return allAsteroids[0];
-        }
-        else
-        {
-            return null;
-        }
     }
 }
