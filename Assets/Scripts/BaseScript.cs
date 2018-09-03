@@ -47,7 +47,7 @@ public class BaseScript : MonoBehaviour, IBase {
     {
         // Reset camera
         mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
-        
+
         // Reset rocket
         IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
         rocket.DestroyInstance();
@@ -70,7 +70,7 @@ public class BaseScript : MonoBehaviour, IBase {
         // Move the camera updwards
         Vector3 movementVector = new Vector3(0, 1, 0);
         mainCamera.GetComponent<Rigidbody2D>().velocity = movementVector * cameraSpeed;
-
+        
         // Create a new asteroid and delete the old one (if there's more than 1 before creation)
         float xSpawn = xAreaAsteroidSpawn / 2;
         Vector3 newAsteroidPos = collidedAsteroid.GetPosition();
