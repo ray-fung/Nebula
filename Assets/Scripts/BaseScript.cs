@@ -1,125 +1,98 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
-public class BaseScript : MonoBehaviour {
+public class BaseScript : MonoBehaviour, IBase {
 
-    [SerializeField]
-    private int score; //score (number of asteroids landed on)
-    public int Score { get { return score; } } //readonly property for score (makes the value accessible outside of this object)
-    public float cameraSpeed; //speed for camera movement
-    public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
-    public Vector3 asteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
-    public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
-    public float yAreaAsteroidSpawn; //y distance to vary spawning asteroid
-    public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
+    [SerializeField] private int score; //score (number of asteroids landed on)
+    [SerializeField] public float cameraSpeed; //speed for camera movement
+    [SerializeField] public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
+    [SerializeField] public Vector3 asteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
+    [SerializeField] public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
+    [SerializeField] public float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
+    [SerializeField] public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
+
+    private IRocket rocket;
+    private Queue<IAsteroid> asteroids;
+    private GameObject mainCamera;
 
     // Use this for initialization
     void Start()
     {
         score = 0;
+        
+        rocket = GameObject.Find("Rocket").GetComponent<RocketScript>();
+        asteroids = new Queue<IAsteroid>();
+        foreach(GameObject asteroidObject in GameObject.FindGameObjectsWithTag("Asteroid"))
+        {
+            asteroids.Enqueue(asteroidObject.GetComponent<AsteroidScript>());
+        }
+        mainCamera = GameObject.Find("Main Camera");
     }
 
     // Update is called once per frame
     void Update () {
-        UpdateCameraVelocity();
-	}
-
-    /// <summary>
-    /// Updates the difficulty of the game by increasing rotation speed, etc.
-    /// </summary>
-    public void UpdateDifficulty()
-    {
-        asteroidRotationSpeed.z += 10; //increase asteroid rotation speed
-    }
-
-    /// <summary>
-    /// Updates the camera's velocity
-    /// </summary>
-    public void UpdateCameraVelocity()
-    {
-        Camera mainCamera = GameObject.FindObjectOfType<Camera>(); //get camera
-        if (mainCamera.GetComponent<Rigidbody2D>().velocity != Vector2.zero) //if velocity is not zero, check velocity
+        // Update the camera velocity
+        if (mainCamera.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
         {
-            //check asteroid y position
-            float asteroidPosY = GetMainAsteroid().transform.position.y; //main asteroid y position
-            float cameraPosY = mainCamera.transform.position.y; //main camera y position
-            if (cameraPosY - asteroidPosY >= cameraYDistanceFromAsteroid) //if camera y is far enough from asteroid, set y velocity to 0
+            float asteroidPosY = asteroids.Peek().GetPosition().y;
+            float cameraPosY = mainCamera.transform.localPosition.y;
+            if (cameraPosY - asteroidPosY >= cameraYDistanceFromAsteroid)
             {
                 mainCamera.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             }
         }
     }
-
-    /// <summary>
-    /// Returns to menu screen in order to start a new game (this is called when the player has died)
-    /// </summary>
-    public void StartNewGame()
+    
+    public void RegisterFailedLanding()
     {
-        GameObject rocket = GameObject.Find("Rocket"); //find rocket object
-        GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Asteroid"); //find asteroid objects
-        GameObject baseObject = GameObject.Find("Base"); //find base object
-        GameObject mainCamera = GameObject.Find("Main Camera"); //find main camera object
+        // Reset camera
+        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
+        
+        // Reset rocket
+        IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
+        rocket.DestroyInstance();
+        rocket = newRocket;
 
-        //create rocket at default location
-        GameObject newRocket = (GameObject)Instantiate(rocket, baseObject.transform);//, new Vector3(0.02f, -1.89f, -92f), new Quaternion(0, 0, 0, 0), baseObject.transform);
-        newRocket.transform.localPosition = new Vector3(0.02f, -1.89f, -92f);
-        newRocket.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
-        newRocket.name = "Rocket";
-        Debug.Log(newRocket.transform.position + " - " + newRocket.transform.localPosition);
-
-        //create asteroid at default location with default parameters
-        GameObject newAsteroid = (GameObject)Instantiate(asteroids[0], baseObject.transform);//, new Vector3(0.19f, 22.98f, -92f), new Quaternion(0, 0, 0, 0), baseObject.transform);
-        Debug.Log(newAsteroid.transform.position + " - " + newAsteroid.transform.localPosition);
-        newAsteroid.transform.localPosition = new Vector3(0.19f, 22.98f, -92f);
-        newAsteroid.GetComponent<AsteroidScript>().isMain = false;
-        newAsteroid.name = "Asteroid";
-
-        //set camera to default position
-        mainCamera.transform.position = new Vector3(0, 0, -990);
-
-        //delete old rocket and asteroid objects
-        Destroy(rocket);
-        foreach (GameObject a in asteroids)
+        // Reset asteroids
+        IAsteroid newAsteroid = asteroids.Peek().CreateAsteroid(transform, new Vector3(0.19f, 22.98f, -92f));
+        foreach (IAsteroid asteroidInstance in asteroids)
         {
-            Destroy(a);
+            asteroidInstance.DestroyInstance();
         }
+        asteroids.Clear();
+        asteroids.Enqueue(newAsteroid);
 
-        //reset score
         score = 0;
     }
-
-    /// <summary>
-    /// Get the main asteroid
-    /// </summary>
-    /// <returns>The main asteroid of the scene (null if not found)</returns>
-    public GameObject GetMainAsteroid()
+    
+    public void RegisterSuccessfulLanding(IAsteroid collidedAsteroid)
     {
-        //iterate through all asteroid objects
-        foreach (GameObject g in GameObject.FindGameObjectsWithTag("Asteroid"))
+        // Move the camera updwards
+        Vector3 movementVector = new Vector3(0, 1, 0);
+        mainCamera.GetComponent<Rigidbody2D>().velocity = movementVector * cameraSpeed;
+
+        // Create a new asteroid and delete the old one (if there's more than 1 before creation)
+        float xSpawn = xAreaAsteroidSpawn / 2;
+        Vector3 newAsteroidPos = collidedAsteroid.GetPosition();
+        newAsteroidPos.y += Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
+        newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
+
+        IAsteroid newAsteroid = collidedAsteroid.CreateAsteroid(transform, newAsteroidPos);
+        asteroids.Enqueue(newAsteroid);
+        if (asteroids.Count > 2)
         {
-            if(g.GetComponent<AsteroidScript>().isMain) //if it is the main asteroid, return the object
-            {
-                return g;
-            }
+            asteroids.Dequeue().DestroyInstance();
         }
-        return null;
-    }
 
-    /// <summary>
-    /// Get the center position of the main asteroid (override for very first asteroid and use planet instead)
-    /// </summary>
-    /// <returns>The center of the main asteroid (center of the planet if it's only the very first asteroid)</returns>
-    public Vector3 GetCenterOfMainAsteroid()
-    {
-        if(score == 0) { return new Vector3(0, -100, 0); } //if this is the first asteroid, return a vector beneath the rocket
-        return GetMainAsteroid().transform.position;
-    }
-
-    /// <summary>
-    /// Increase the score by one (when the rocket hits an asteroid)
-    /// </summary>
-    public void IncreaseScore()
-    {
+        // Update score and difficulty
+        asteroidRotationSpeed.z += 10;
         score++;
+    }
+
+    public bool IsOnScreen(Vector3 position)
+    {
+        float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
+        float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
+        return (xDifference > 30 || yDifference > 40);
     }
 }
