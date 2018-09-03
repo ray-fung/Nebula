@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class BaseScript : MonoBehaviour, IBase {
 
-    [SerializeField] private int score; //score (number of asteroids landed on)
+    [SerializeField] public int score; //score (number of asteroids landed on)
     [SerializeField] public float cameraSpeed; //speed for camera movement
     [SerializeField] public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
     [SerializeField] public Vector3 asteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
