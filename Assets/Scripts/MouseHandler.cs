@@ -35,14 +35,8 @@ public class MouseHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             Image playButton = GetComponent<Image>();
             playButton.CrossFadeAlpha(0.0f, 1.0f, true);
 
-            //animator.SetTrigger("PlayFade");
-            //animator.SetBool("PlayInvs", true);
-
             Text title = GetComponentInChildren<Text>();
             title.CrossFadeAlpha(0.0f, 1.0f, true);
-
-            //animator.SetTrigger("TitleFade");
-            //animator.SetBool("TitleInvs", true);
             
             beginGame = true;
         }
