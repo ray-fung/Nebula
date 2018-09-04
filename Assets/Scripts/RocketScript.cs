@@ -9,6 +9,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     private bool beginGame;
     private IInputManager inputManager;
     private IBase baseScript;
+    private bool landed;
 
     // Use this for initialization
     void Start()
@@ -17,6 +18,7 @@ public class RocketScript : MonoBehaviour, IRocket {
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
         inputManager = gameObject.GetComponentInParent<InputManager>();
         baseScript = gameObject.GetComponentInParent<BaseScript>();
+        landed = true;
     }
 
     // Update is called once per frame
@@ -39,7 +41,7 @@ public class RocketScript : MonoBehaviour, IRocket {
         }
 
         // Listen to input to shoot the rocket
-        if (beginGame && inputManager.GetRocketInput())
+        if (beginGame && inputManager.GetRocketInput() && landed)
         {
             // Calculate the direction to fire the rocket
             Vector3 asteroidPosition = rotationCenter ?? new Vector3(0, -1000, 0); // Default to shooting straight up
@@ -51,6 +53,7 @@ public class RocketScript : MonoBehaviour, IRocket {
             transform.GetComponent<Rigidbody2D>().velocity = movementVector * rocketSpeed;
 
             rotationCenter = null;
+            landed = false;
         }
     }
 
@@ -72,6 +75,7 @@ public class RocketScript : MonoBehaviour, IRocket {
             asteroidCenter.z = 0;
             transform.up = currentPos - asteroidCenter;
 
+            landed = true;
             baseScript.RegisterSuccessfulLanding(asteroid);
         }
     }
