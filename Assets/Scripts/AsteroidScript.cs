@@ -3,10 +3,18 @@ using System.Collections;
 
 public class AsteroidScript : MonoBehaviour, IAsteroid {
 
+    private IBase baseScript;
+
+    // Use this for initialization
+    void Start()
+    {
+        baseScript = GetComponentInParent<BaseScript>();
+    }
+
     // Update is called once per frame
     void Update() {
         //rotate the asteroid
-        Vector3 rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed;
+        Vector3 rotationSpeed = baseScript.GetAsteroidRotationSpeed();
         transform.Rotate(rotationSpeed * Time.deltaTime);
     }
 

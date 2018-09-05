@@ -33,7 +33,7 @@ public class RocketScript : MonoBehaviour, IRocket {
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
         {
-            float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z;
+            float rotationSpeed = baseScript.GetAsteroidRotationSpeed().z;
             Vector3 convertedRotationCenter = transform.parent.TransformVector((Vector3)rotationCenter);
             transform.RotateAround(convertedRotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime);
         }
