@@ -7,21 +7,21 @@ public class BaseScript : MonoBehaviour, IBase {
     [SerializeField] public int score; //score (number of asteroids landed on)
     [SerializeField] public float cameraSpeed; //speed for camera movement
     [SerializeField] public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
-    [SerializeField] public Vector3 asteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
+    [SerializeField] public Vector3 startingAsteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
     [SerializeField] public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
     [SerializeField] public float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
     [SerializeField] public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
     public Sprite[] rockets;
 
+    private Vector3 asteroidRotationSpeed;
     private IRocket rocket;
     private Queue<IAsteroid> asteroids;
     private GameObject mainCamera;
+    private GameObject gameOverDialogue;
 
     // Use this for initialization
     void Start()
     {
-        score = 0;
-        
         rocket = GameObject.Find("Rocket").GetComponent<RocketScript>();
         asteroids = new Queue<IAsteroid>();
         foreach(GameObject asteroidObject in GameObject.FindGameObjectsWithTag("Asteroid"))
@@ -29,6 +29,11 @@ public class BaseScript : MonoBehaviour, IBase {
             asteroids.Enqueue(asteroidObject.GetComponent<AsteroidScript>());
         }
         mainCamera = GameObject.Find("Main Camera");
+        gameOverDialogue = GameObject.Find("Game Over");
+
+        gameOverDialogue.SetActive(false);
+        score = 0;
+        asteroidRotationSpeed = startingAsteroidRotationSpeed;
     }
 
     // Update is called once per frame
@@ -44,40 +49,21 @@ public class BaseScript : MonoBehaviour, IBase {
             }
         }
     }
+
+    public Vector3 GetAsteroidRotationSpeed()
+    {
+        return asteroidRotationSpeed;
+    }
     
     public void RegisterFailedLanding()
     {
-        // Reset camera
-        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
+        // Ideally we'd do something with the rocket here, like delete it,
+        // but since we need it to instantiate the next rocket we can't
+        // Once we switch over to instantiating prefabs this will be fixed
+        // and we can properly dispose of the rocket here
 
-        // Reset rocket
-        //IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
-
-
-        GameObject tempRocket = GameObject.Find("Rocket");
-
-        // Change the sprite of the rocket to a random one
-        tempRocket.GetComponent<SpriteRenderer>().sprite = rockets[Random.Range(0, 3)];
-
-        // Instantiate a new rocket object and change its name to Rocket
-        GameObject newRocket = Instantiate(tempRocket, new Vector3(0.02f, -1.89f, -92f), new Quaternion(0f, 0f, 0f, 0f), transform);
-        newRocket.name = "Rocket";
-        IRocket newScript = newRocket.GetComponent<RocketScript>();
-
-        // Destroy old rocket and set the script of the new rocket to the IRocket
-        rocket.DestroyInstance();
-        rocket = newScript;
-
-        // Reset asteroids
-        IAsteroid newAsteroid = asteroids.Peek().CreateAsteroid(transform, new Vector3(0.19f, 22.98f, -92f));
-        foreach (IAsteroid asteroidInstance in asteroids)
-        {
-            asteroidInstance.DestroyInstance();
-        }
-        asteroids.Clear();
-        asteroids.Enqueue(newAsteroid);
-
-        score = 0;
+        // Display game over screen
+        gameOverDialogue.SetActive(true);
     }
     
     public void RegisterSuccessfulLanding(IAsteroid collidedAsteroid)
@@ -109,5 +95,40 @@ public class BaseScript : MonoBehaviour, IBase {
         float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
         float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
         return (xDifference > 30 || yDifference > 40);
+    }
+
+    public void TriggerNewGame()
+    {
+        // Reset camera
+        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
+
+        // Reset rocket
+        //IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
+
+        GameObject tempRocket = GameObject.Find("Rocket");
+
+        // Change the sprite of the rocket to a random one
+        tempRocket.GetComponent<SpriteRenderer>().sprite = rockets[Random.Range(0, 4)];
+
+        // Instantiate a new rocket object and change its name to Rocket
+        GameObject newRocket = Instantiate(tempRocket, new Vector3(0.02f, -1.89f, -92f), new Quaternion(0f, 0f, 0f, 0f), transform);
+        newRocket.name = "Rocket";
+        IRocket newScript = newRocket.GetComponent<RocketScript>();
+
+        // Destroy old rocket and set the script of the new rocket to the IRocket
+        rocket.DestroyInstance();
+        rocket = newScript;
+
+        // Reset asteroids
+        IAsteroid newAsteroid = asteroids.Peek().CreateAsteroid(transform, new Vector3(0.19f, 22.98f, -92f));
+        foreach (IAsteroid asteroidInstance in asteroids)
+        {
+            asteroidInstance.DestroyInstance();
+        }
+        asteroids.Clear();
+        asteroids.Enqueue(newAsteroid);
+
+        score = 0;
+        gameOverDialogue.SetActive(false);
     }
 }

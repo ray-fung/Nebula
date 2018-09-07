@@ -35,13 +35,13 @@ public class RocketScript : MonoBehaviour, IRocket {
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
         {
-            float rotationSpeed = GetComponentInParent<BaseScript>().asteroidRotationSpeed.z;
+            float rotationSpeed = baseScript.GetAsteroidRotationSpeed().z;
             Vector3 convertedRotationCenter = transform.parent.TransformVector((Vector3)rotationCenter);
             transform.RotateAround(convertedRotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime);
         }
 
         // Listen to input to shoot the rocket
-        if (beginGame && inputManager.GetRocketInput() && landed)
+        if (beginGame && landed && inputManager.GetRocketInput())
         {
             // Calculate the direction to fire the rocket
             Vector3 asteroidPosition = rotationCenter ?? new Vector3(0, -1000, 0); // Default to shooting straight up
