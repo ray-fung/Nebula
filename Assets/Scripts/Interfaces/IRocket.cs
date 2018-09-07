@@ -8,11 +8,6 @@ using UnityEngine;
 public interface IRocket
 {
     /// <summary>
-    /// Creates a new rocket instance
-    /// </summary>
-    IRocket CreateRocket(Transform parent, Vector3 position);
-
-    /// <summary>
     /// Destroys this rocket instance
     /// </summary>
     void DestroyInstance();

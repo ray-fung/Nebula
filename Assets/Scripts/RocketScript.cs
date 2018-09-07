@@ -4,9 +4,9 @@ using System.Collections;
 public class RocketScript : MonoBehaviour, IRocket {
 
     [SerializeField] public int rocketSpeed; //speed for rocket movement
-
+    
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
-    private bool beginGame;
+     private bool beginGame;
     private IInputManager inputManager;
     private IBase baseScript;
     private bool landed;
@@ -78,15 +78,6 @@ public class RocketScript : MonoBehaviour, IRocket {
             landed = true;
             baseScript.RegisterSuccessfulLanding(asteroid);
         }
-    }
-
-    public IRocket CreateRocket(Transform parent, Vector3 position)
-    {
-        GameObject newRocket = Instantiate(gameObject, parent);
-        newRocket.transform.localPosition = position;
-        newRocket.transform.rotation = new Quaternion(0, 0, 0, 0);
-        newRocket.name = "Rocket";
-        return newRocket.GetComponent<RocketScript>();
     }
 
     public void DestroyInstance()
