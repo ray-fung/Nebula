@@ -8,11 +8,6 @@ using UnityEngine;
 /// </summary>
 public interface IAsteroid {
     /// <summary>
-    /// Create a new asteroid instance
-    /// </summary>
-    IAsteroid CreateAsteroid(Transform parent, Vector3 position);
-
-    /// <summary>
     /// Destroys this asteroid instance
     /// </summary>
     void DestroyInstance();

@@ -4,14 +4,17 @@ using UnityEngine.UI;
 
 public class BaseScript : MonoBehaviour, IBase {
 
-    [SerializeField] public int score; //score (number of asteroids landed on)
-    [SerializeField] public float cameraSpeed; //speed for camera movement
-    [SerializeField] public float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
-    [SerializeField] public Vector3 startingAsteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
-    [SerializeField] public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
-    [SerializeField] public float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
-    [SerializeField] public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
-    public Sprite[] rockets;
+    public int score; //score (number of asteroids landed on)
+    [SerializeField] private float cameraSpeed; //speed for camera movement
+    [SerializeField] private float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
+    [SerializeField] private float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
+    [SerializeField] private float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
+    [SerializeField] private float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
+    [SerializeField] private Vector3 startingAsteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
+    [SerializeField] private GameObject rocketPrefab; // prefab used to instantiate rocket
+    [SerializeField] private Sprite[] rocketSprites; // Sprites for rockets
+    [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
+    [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
 
     private Vector3 asteroidRotationSpeed;
     private IRocket rocket;
@@ -54,13 +57,10 @@ public class BaseScript : MonoBehaviour, IBase {
     {
         return asteroidRotationSpeed;
     }
-    
+
     public void RegisterFailedLanding()
     {
-        // Ideally we'd do something with the rocket here, like delete it,
-        // but since we need it to instantiate the next rocket we can't
-        // Once we switch over to instantiating prefabs this will be fixed
-        // and we can properly dispose of the rocket here
+        rocket.DestroyInstance();
 
         // Display game over screen
         gameOverDialogue.SetActive(true);
@@ -78,7 +78,7 @@ public class BaseScript : MonoBehaviour, IBase {
         newAsteroidPos.y += Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
         newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
 
-        IAsteroid newAsteroid = collidedAsteroid.CreateAsteroid(transform, newAsteroidPos);
+        IAsteroid newAsteroid = CreateAsteroid(newAsteroidPos);
         asteroids.Enqueue(newAsteroid);
         if (asteroids.Count > 2)
         {
@@ -103,24 +103,11 @@ public class BaseScript : MonoBehaviour, IBase {
         mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
 
         // Reset rocket
-        //IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
-
-        GameObject tempRocket = GameObject.Find("Rocket");
-
-        // Change the sprite of the rocket to a random one
-        tempRocket.GetComponent<SpriteRenderer>().sprite = rockets[Random.Range(0, 4)];
-
-        // Instantiate a new rocket object and change its name to Rocket
-        GameObject newRocket = Instantiate(tempRocket, new Vector3(0.02f, -1.89f, -92f), new Quaternion(0f, 0f, 0f, 0f), transform);
-        newRocket.name = "Rocket";
-        IRocket newScript = newRocket.GetComponent<RocketScript>();
-
-        // Destroy old rocket and set the script of the new rocket to the IRocket
-        rocket.DestroyInstance();
-        rocket = newScript;
+        IRocket newRocket = CreateRocket(new Vector3(0.02f, -1.89f, -92f));
+        rocket = newRocket;
 
         // Reset asteroids
-        IAsteroid newAsteroid = asteroids.Peek().CreateAsteroid(transform, new Vector3(0.19f, 22.98f, -92f));
+        IAsteroid newAsteroid = CreateAsteroid(new Vector3(0.19f, 22.98f, -92f));
         foreach (IAsteroid asteroidInstance in asteroids)
         {
             asteroidInstance.DestroyInstance();
@@ -130,5 +117,31 @@ public class BaseScript : MonoBehaviour, IBase {
 
         score = 0;
         gameOverDialogue.SetActive(false);
+    }
+
+    /// <summary>
+    /// Creates new rocket with random sprite
+    /// </summary>
+    private IRocket CreateRocket(Vector3 position)
+    {
+        GameObject newRocket = Instantiate(rocketPrefab, transform);
+        newRocket.transform.localPosition = position;
+        newRocket.transform.rotation = new Quaternion(0, 0, 0, 0);
+        newRocket.name = "Rocket";
+        newRocket.GetComponent<SpriteRenderer>().sprite = rocketSprites[Random.Range(0, 3)];
+        return newRocket.GetComponent<RocketScript>();
+    }
+
+    /// <summary>
+    /// Creates new asteroid with random sprite
+    /// </summary>
+    private IAsteroid CreateAsteroid(Vector3 position)
+    {
+        GameObject newAsteroid = Instantiate(asteroidPrefab, transform);
+        newAsteroid.transform.localPosition = position;
+        newAsteroid.name = "Asteroid";
+        newAsteroid.GetComponent<SpriteRenderer>().sprite = asteroidSprites[Random.Range(0, 4)];
+
+        return newAsteroid.GetComponent<AsteroidScript>();
     }
 }
