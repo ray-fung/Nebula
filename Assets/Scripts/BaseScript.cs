@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class BaseScript : MonoBehaviour, IBase {
 
@@ -10,6 +11,7 @@ public class BaseScript : MonoBehaviour, IBase {
     [SerializeField] public float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
     [SerializeField] public float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
     [SerializeField] public float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
+    public Sprite[] rockets;
 
     private Vector3 asteroidRotationSpeed;
     private IRocket rocket;
@@ -27,7 +29,7 @@ public class BaseScript : MonoBehaviour, IBase {
             asteroids.Enqueue(asteroidObject.GetComponent<AsteroidScript>());
         }
         mainCamera = GameObject.Find("Main Camera");
-        gameOverDialogue = GameObject.Find("Play Again");
+        gameOverDialogue = GameObject.Find("Game Over");
 
         gameOverDialogue.SetActive(false);
         score = 0;
@@ -101,9 +103,21 @@ public class BaseScript : MonoBehaviour, IBase {
         mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
 
         // Reset rocket
-        IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
+        //IRocket newRocket = rocket.CreateRocket(transform, new Vector3(0.02f, -1.89f, -92f));
+
+        GameObject tempRocket = GameObject.Find("Rocket");
+
+        // Change the sprite of the rocket to a random one
+        tempRocket.GetComponent<SpriteRenderer>().sprite = rockets[Random.Range(0, 4)];
+
+        // Instantiate a new rocket object and change its name to Rocket
+        GameObject newRocket = Instantiate(tempRocket, new Vector3(0.02f, -1.89f, -92f), new Quaternion(0f, 0f, 0f, 0f), transform);
+        newRocket.name = "Rocket";
+        IRocket newScript = newRocket.GetComponent<RocketScript>();
+
+        // Destroy old rocket and set the script of the new rocket to the IRocket
         rocket.DestroyInstance();
-        rocket = newRocket;
+        rocket = newScript;
 
         // Reset asteroids
         IAsteroid newAsteroid = asteroids.Peek().CreateAsteroid(transform, new Vector3(0.19f, 22.98f, -92f));
