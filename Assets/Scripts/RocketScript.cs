@@ -6,10 +6,11 @@ public class RocketScript : MonoBehaviour, IRocket {
     [SerializeField] public int rocketSpeed; //speed for rocket movement
     
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
-     private bool beginGame;
+    private bool beginGame;
     private IInputManager inputManager;
     private IBase baseScript;
-    private bool landed;
+    private bool readyToLaumch;
+    private AudioSource thrusterSound;
 
     // Use this for initialization
     void Start()
@@ -18,7 +19,8 @@ public class RocketScript : MonoBehaviour, IRocket {
         beginGame = GameObject.Find("Canvas").GetComponentInChildren<MouseHandler>().beginGame;
         inputManager = gameObject.GetComponentInParent<InputManager>();
         baseScript = gameObject.GetComponentInParent<BaseScript>();
-        landed = true;
+        thrusterSound = gameObject.GetComponent<AudioSource>();
+        readyToLaumch = true;
     }
 
     // Update is called once per frame
@@ -41,7 +43,7 @@ public class RocketScript : MonoBehaviour, IRocket {
         }
 
         // Listen to input to shoot the rocket
-        if (beginGame && landed && inputManager.GetRocketInput())
+        if (beginGame && readyToLaumch && inputManager.GetRocketInput())
         {
             // Calculate the direction to fire the rocket
             Vector3 asteroidPosition = rotationCenter ?? new Vector3(0, -1000, 0); // Default to shooting straight up
@@ -51,9 +53,10 @@ public class RocketScript : MonoBehaviour, IRocket {
 
             Vector3 movementVector = (posVector - asteroidPosition).normalized;
             transform.GetComponent<Rigidbody2D>().velocity = movementVector * rocketSpeed;
+            thrusterSound.Play();
 
             rotationCenter = null;
-            landed = false;
+            readyToLaumch = false;
         }
     }
 
@@ -75,7 +78,7 @@ public class RocketScript : MonoBehaviour, IRocket {
             asteroidCenter.z = 0;
             transform.up = currentPos - asteroidCenter;
 
-            landed = true;
+            readyToLaumch = true;
             baseScript.RegisterSuccessfulLanding(asteroid);
         }
     }

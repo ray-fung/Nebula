@@ -5,10 +5,9 @@ using UnityEngine.UI;
 
 public class MouseHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
 
-    Animator animator;
-
     public bool isOver = false;
     public bool beginGame = false;
+    [SerializeField] private Text title;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -23,7 +22,7 @@ public class MouseHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 	// Use this for initialization
 	void Start()
     {
-        animator = GetComponent<Animator>();
+
     }
 	
 	
@@ -35,9 +34,8 @@ public class MouseHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             Image playButton = GetComponent<Image>();
             playButton.CrossFadeAlpha(0.0f, 1.0f, true);
 
-            Text title = GetComponentInChildren<Text>();
             title.CrossFadeAlpha(0.0f, 1.0f, true);
-            
+
             beginGame = true;
         }
 
