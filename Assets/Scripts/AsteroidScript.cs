@@ -3,21 +3,19 @@ using System.Collections;
 
 public class AsteroidScript : MonoBehaviour, IAsteroid {
 
-    private IBase baseScript;
+    [SerializeField] private Sprite[] moonSpriteArray;
+    private int rotationSpeed; // rotation speed is in degrees per sec
 
     // Use this for initialization
     void Start()
     {
-        baseScript = GetComponentInParent<BaseScript>();
+        rotationSpeed = 90;
     }
-
-    public Sprite[] moonSpriteArray;
 
     // Update is called once per frame
     void Update() {
         //rotate the asteroid
-        Vector3 rotationSpeed = baseScript.GetAsteroidRotationSpeed();
-        transform.Rotate(rotationSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
     }
 
     public void DestroyInstance()
@@ -28,5 +26,10 @@ public class AsteroidScript : MonoBehaviour, IAsteroid {
     public Vector3 GetPosition()
     {
         return transform.localPosition;
+    }
+
+    public void UpdateRotationSpeed(int score)
+    {
+        rotationSpeed += score * 10;
     }
 }

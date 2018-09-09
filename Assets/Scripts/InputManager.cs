@@ -16,6 +16,6 @@ public class InputManager : MonoBehaviour, IInputManager {
             }
         }
         
-        return (Input.GetKeyDown(KeyCode.Space) && IsInDeveloperMode);
+        return (IsInDeveloperMode && Input.GetKeyDown(KeyCode.Space));
     }
 }

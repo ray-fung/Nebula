@@ -16,4 +16,10 @@ public interface IAsteroid {
     /// Get the local position of this asteroid
     /// </summary>
     Vector3 GetPosition();
+
+    /// <summary>
+    /// Update the rotation speed based on game progression
+    /// ie score
+    /// </summary>
+    void UpdateRotationSpeed(int score);
 }

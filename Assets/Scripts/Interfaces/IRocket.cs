@@ -11,4 +11,15 @@ public interface IRocket
     /// Destroys this rocket instance
     /// </summary>
     void DestroyInstance();
+
+    /// <summary>
+    /// Update the rotation speed based on game progression
+    /// ie score
+    /// </summary>
+    void UpdateRotationSpeed(int score);
+
+    /// <summary>
+    /// Launches the rocket
+    /// </summary>
+    void LaunchRocket();
 }
