@@ -3,29 +3,50 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScoreScript : MonoBehaviour
-{
+public class ScoreScript : MonoBehaviour, IScore {
 
-    private Text score;
+    private Text scoreText;
+    private int score;
 
     // Use this for initialization
     void Start()
     {
-        score = GetComponent<Text>();
-        score.text = "0";
-        score.CrossFadeAlpha(0, 0, true);
+        score = 0;
+        scoreText = GetComponent<Text>();
+        scoreText.text = score.ToString();
+        scoreText.CrossFadeAlpha(0, 0, true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (score.transform.parent.GetComponentInChildren<MouseHandler>().beginGame)
-        {
-            score.CrossFadeAlpha(1, .5f, true);
-        }
-        else if (score.transform.parent.GetComponentInChildren<MouseHandler>().isOver) {
-            score.CrossFadeAlpha(0, .5f, true);
-        }
-        score.text = GetComponentInParent<BaseScript>().score.ToString();
     }
+
+    public int getScore()
+    {
+        return score;
+    }
+
+    public void updateScore()
+    {
+        score++;
+        scoreText.text = score.ToString();
+    }
+
+    public void resetScore()
+    {
+        score = 0;
+        scoreText.text = score.ToString();
+    }
+
+    public void fadeIn()
+    {
+        scoreText.CrossFadeAlpha(1, .5f, true);
+    }
+
+    public void fadeOut()
+    {
+        scoreText.CrossFadeAlpha(0, .5f, true);
+    }
+
 }

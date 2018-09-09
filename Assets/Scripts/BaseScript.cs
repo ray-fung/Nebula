@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class BaseScript : MonoBehaviour, IBase {
 
-    public int score; //score (number of asteroids landed on)
     [SerializeField] private float cameraSpeed; //speed for camera movement
     [SerializeField] private float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
     [SerializeField] private float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
@@ -15,6 +14,7 @@ public class BaseScript : MonoBehaviour, IBase {
     [SerializeField] private Sprite[] rocketSprites; // Sprites for rockets
     [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
     [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
+    [SerializeField] private ScoreScript scoreScript; // Script to access the score
 
     private Vector3 asteroidRotationSpeed;
     private IRocket rocket;
@@ -35,7 +35,6 @@ public class BaseScript : MonoBehaviour, IBase {
         gameOverDialogue = GameObject.Find("Game Over");
 
         gameOverDialogue.SetActive(false);
-        score = 0;
         asteroidRotationSpeed = startingAsteroidRotationSpeed;
     }
 
@@ -63,6 +62,7 @@ public class BaseScript : MonoBehaviour, IBase {
         rocket.DestroyInstance();
 
         // Display game over screen
+        scoreScript.fadeOut();
         gameOverDialogue.SetActive(true);
     }
     
@@ -87,7 +87,7 @@ public class BaseScript : MonoBehaviour, IBase {
 
         // Update score and difficulty
         asteroidRotationSpeed.z += 10;
-        score++;
+        scoreScript.updateScore();
     }
 
     public bool IsOnScreen(Vector3 position)
@@ -114,8 +114,9 @@ public class BaseScript : MonoBehaviour, IBase {
         }
         asteroids.Clear();
         asteroids.Enqueue(newAsteroid);
-
-        score = 0;
+  
+        scoreScript.resetScore();
+        scoreScript.fadeIn();
         gameOverDialogue.SetActive(false);
     }
 
@@ -128,7 +129,7 @@ public class BaseScript : MonoBehaviour, IBase {
         newRocket.transform.localPosition = position;
         newRocket.transform.rotation = new Quaternion(0, 0, 0, 0);
         newRocket.name = "Rocket";
-        newRocket.GetComponent<SpriteRenderer>().sprite = rocketSprites[Random.Range(0, 3)];
+        newRocket.GetComponent<SpriteRenderer>().sprite = rocketSprites[Random.Range(0, rocketSprites.Length)];
         return newRocket.GetComponent<RocketScript>();
     }
 
@@ -140,7 +141,7 @@ public class BaseScript : MonoBehaviour, IBase {
         GameObject newAsteroid = Instantiate(asteroidPrefab, transform);
         newAsteroid.transform.localPosition = position;
         newAsteroid.name = "Asteroid";
-        newAsteroid.GetComponent<SpriteRenderer>().sprite = asteroidSprites[Random.Range(0, 4)];
+        newAsteroid.GetComponent<SpriteRenderer>().sprite = asteroidSprites[Random.Range(0, asteroidSprites.Length)];
 
         return newAsteroid.GetComponent<AsteroidScript>();
     }
