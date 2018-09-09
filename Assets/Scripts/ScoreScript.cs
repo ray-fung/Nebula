@@ -17,36 +17,30 @@ public class ScoreScript : MonoBehaviour, IScore {
         scoreText.CrossFadeAlpha(0, 0, true);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
-    public int getScore()
+    public int GetScore()
     {
         return score;
     }
 
-    public void updateScore()
+    public void UpdateScore()
     {
         score++;
         scoreText.text = score.ToString();
     }
 
-    public void resetScore()
+    public void ResetScore()
     {
         score = 0;
         scoreText.text = score.ToString();
     }
 
-    public void fadeIn()
+    public void FadeIn()
     {
         scoreText.CrossFadeAlpha(1, .5f, true);
     }
 
-    public void fadeOut()
+    public void FadeOut()
     {
         scoreText.CrossFadeAlpha(0, .5f, true);
     }
-
 }

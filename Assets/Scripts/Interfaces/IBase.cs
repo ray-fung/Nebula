@@ -3,24 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Base controller for all game elements. Coordinates 
-/// score, creation of objects, etc.
+/// Manager for all game elements. Coordinates 
+/// game state, communication between components
+/// and creation of objects
 /// </summary>
 public interface IBase {
     /// <summary>
-    /// Gets the speed at which the asteroids rotate as a vector
+    /// Signals to the manager object that the
+    /// game has begun and the user can interact with
+    /// the rocket
     /// </summary>
-    Vector3 GetAsteroidRotationSpeed();
+    void BeginGame();
 
     /// <summary>
-    /// Called to indicate to the base object
+    /// Called to indicate to the manager object
     /// that the player missed the asteroid
     /// and flew off into space
     /// </summary>
     void RegisterFailedLanding();
 
     /// <summary>
-    /// Called to indicate to the base object
+    /// Called to indicate to the manager object
     /// that the player successfully hit the asteroid
     /// </summary>
     void RegisterSuccessfulLanding(IAsteroid collidedAsteroid);

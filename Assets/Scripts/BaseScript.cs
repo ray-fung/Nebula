@@ -9,18 +9,20 @@ public class BaseScript : MonoBehaviour, IBase {
     [SerializeField] private float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
     [SerializeField] private float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
     [SerializeField] private float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
-    [SerializeField] private Vector3 startingAsteroidRotationSpeed; //degrees per second that the asteroid and rocket rotates
     [SerializeField] private GameObject rocketPrefab; // prefab used to instantiate rocket
     [SerializeField] private Sprite[] rocketSprites; // Sprites for rockets
     [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
     [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
-    [SerializeField] private ScoreScript scoreScript; // Script to access the score
+    [SerializeField] private GameObject gameOverDialogue;
 
-    private Vector3 asteroidRotationSpeed;
     private IRocket rocket;
     private Queue<IAsteroid> asteroids;
     private GameObject mainCamera;
-    private GameObject gameOverDialogue;
+    private IScore scoreScript; // Script to access the score
+    private IInputManager inputManager;
+    private ITitleUi titleUiScript;
+    private ICamera cameraScript;
+    private bool gameHasBegun;
 
     // Use this for initialization
     void Start()
@@ -32,29 +34,22 @@ public class BaseScript : MonoBehaviour, IBase {
             asteroids.Enqueue(asteroidObject.GetComponent<AsteroidScript>());
         }
         mainCamera = GameObject.Find("Main Camera");
-        gameOverDialogue = GameObject.Find("Game Over");
+        scoreScript = GameObject.Find("Score").GetComponent<ScoreScript>();
+        inputManager = gameObject.GetComponent<InputManager>();
+        titleUiScript = GameObject.Find("Title").GetComponent<TitleUiScript>();
+        cameraScript = GameObject.Find("Main Camera").GetComponent<CameraScript>();
 
         gameOverDialogue.SetActive(false);
-        asteroidRotationSpeed = startingAsteroidRotationSpeed;
+        gameHasBegun = false;
     }
 
     // Update is called once per frame
     void Update () {
-        // Update the camera velocity
-        if (mainCamera.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
+        // Listen to input to launch the rocket
+        if(gameHasBegun && inputManager.GetRocketInput())
         {
-            float asteroidPosY = asteroids.Peek().GetPosition().y;
-            float cameraPosY = mainCamera.transform.localPosition.y;
-            if (cameraPosY - asteroidPosY >= cameraYDistanceFromAsteroid)
-            {
-                mainCamera.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-            }
+            rocket.LaunchRocket();
         }
-    }
-
-    public Vector3 GetAsteroidRotationSpeed()
-    {
-        return asteroidRotationSpeed;
     }
 
     public void RegisterFailedLanding()
@@ -62,15 +57,14 @@ public class BaseScript : MonoBehaviour, IBase {
         rocket.DestroyInstance();
 
         // Display game over screen
-        scoreScript.fadeOut();
+        scoreScript.FadeOut();
         gameOverDialogue.SetActive(true);
     }
     
     public void RegisterSuccessfulLanding(IAsteroid collidedAsteroid)
     {
         // Move the camera updwards
-        Vector3 movementVector = new Vector3(0, 1, 0);
-        mainCamera.GetComponent<Rigidbody2D>().velocity = movementVector * cameraSpeed;
+        cameraScript.MoveCameraUntil(collidedAsteroid.GetPosition());
         
         // Create a new asteroid and delete the old one (if there's more than 1 before creation)
         float xSpawn = xAreaAsteroidSpawn / 2;
@@ -85,16 +79,26 @@ public class BaseScript : MonoBehaviour, IBase {
             asteroids.Dequeue().DestroyInstance();
         }
 
-        // Update score and difficulty
-        asteroidRotationSpeed.z += 10;
-        scoreScript.updateScore();
+        // Update score
+        scoreScript.UpdateScore();
+        int score = scoreScript.GetScore();
+        rocket.UpdateRotationSpeed(score);
+        foreach (IAsteroid asteroidObject in asteroids)
+        {
+            asteroidObject.UpdateRotationSpeed(score);
+        }
     }
 
     public bool IsOnScreen(Vector3 position)
     {
-        float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
-        float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
-        return (xDifference > 30 || yDifference > 40);
+
+        Vector3 cameraPos = cameraScript.GetPosition();
+        float xDifference = Mathf.Abs(cameraPos.x - position.x);
+        return (Mathf.Abs(cameraPos.x - position.x) > 30 || Mathf.Abs(cameraPos.y - position.y) > 40);
+
+        //float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
+        //float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
+        //return (xDifference > 30 || yDifference > 40);
     }
 
     public void TriggerNewGame()
@@ -115,9 +119,19 @@ public class BaseScript : MonoBehaviour, IBase {
         asteroids.Clear();
         asteroids.Enqueue(newAsteroid);
   
-        scoreScript.resetScore();
-        scoreScript.fadeIn();
+        scoreScript.ResetScore();
+        int score = scoreScript.GetScore();
+        rocket.UpdateRotationSpeed(score);
+        newAsteroid.UpdateRotationSpeed(score);
+        scoreScript.FadeIn();
         gameOverDialogue.SetActive(false);
+    }
+
+    public void BeginGame()
+    {
+        scoreScript.FadeIn();
+        titleUiScript.FadeOut();
+        gameHasBegun = true;
     }
 
     /// <summary>
