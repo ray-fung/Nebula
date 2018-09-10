@@ -29,11 +29,6 @@ public interface IBase {
     void RegisterSuccessfulLanding(IAsteroid collidedAsteroid);
 
     /// <summary>
-    /// Returns true if the given position is on screen, false otherwise
-    /// </summary>
-    bool IsOnScreen(Vector3 position);
-
-    /// <summary>
     /// Triggers a new game to start
     /// </summary>
     void TriggerNewGame();
