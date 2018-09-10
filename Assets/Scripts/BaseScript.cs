@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class BaseScript : MonoBehaviour, IBase {
 
-    [SerializeField] private float cameraSpeed; //speed for camera movement
-    [SerializeField] private float cameraYDistanceFromAsteroid; //y distance the camera stops from the asteroid
     [SerializeField] private float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
     [SerializeField] private float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
     [SerializeField] private float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
@@ -69,8 +67,8 @@ public class BaseScript : MonoBehaviour, IBase {
         // Create a new asteroid and delete the old one (if there's more than 1 before creation)
         float xSpawn = xAreaAsteroidSpawn / 2;
         Vector3 newAsteroidPos = collidedAsteroid.GetPosition();
-        newAsteroidPos.y += Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
-        newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
+        newAsteroidPos.y += maxYAwayAsteroidSpawn; //Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
+        newAsteroidPos.x = xSpawn; //Random.Range(-xSpawn, xSpawn);
 
         IAsteroid newAsteroid = CreateAsteroid(newAsteroidPos);
         asteroids.Enqueue(newAsteroid);
@@ -89,29 +87,17 @@ public class BaseScript : MonoBehaviour, IBase {
         }
     }
 
-    public bool IsOnScreen(Vector3 position)
-    {
-
-        Vector3 cameraPos = cameraScript.GetPosition();
-        float xDifference = Mathf.Abs(cameraPos.x - position.x);
-        return (Mathf.Abs(cameraPos.x - position.x) > 30 || Mathf.Abs(cameraPos.y - position.y) > 40);
-
-        //float xDifference = Mathf.Abs(mainCamera.transform.localPosition.x - position.x);
-        //float yDifference = Mathf.Abs(mainCamera.transform.localPosition.y - position.y);
-        //return (xDifference > 30 || yDifference > 40);
-    }
-
     public void TriggerNewGame()
     {
         // Reset camera
-        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -990);
+        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -930);
 
         // Reset rocket
-        IRocket newRocket = CreateRocket(new Vector3(0.02f, -1.89f, -92f));
+        IRocket newRocket = CreateRocket(new Vector3(0f, -1.9f, -92f));
         rocket = newRocket;
 
         // Reset asteroids
-        IAsteroid newAsteroid = CreateAsteroid(new Vector3(0.19f, 22.98f, -92f));
+        IAsteroid newAsteroid = CreateAsteroid(new Vector3(0f, 22f, -92f));
         foreach (IAsteroid asteroidInstance in asteroids)
         {
             asteroidInstance.DestroyInstance();

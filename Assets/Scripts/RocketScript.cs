@@ -4,7 +4,8 @@ using System.Collections;
 public class RocketScript : MonoBehaviour, IRocket {
 
     [SerializeField] public int rocketSpeed; //speed for rocket movement
-    
+    [SerializeField] private int initialRotationSpeed;
+
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
     private int rotationSpeed; // rotation speed is in degrees per sec
     private IBase baseScript;
@@ -15,7 +16,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     void Start()
     {
         rotationCenter = null;
-        rotationSpeed = 90;
+        rotationSpeed = initialRotationSpeed;
         baseScript = gameObject.GetComponentInParent<BaseScript>();
         thrusterSound = gameObject.GetComponent<AudioSource>();
         readyToLaunch = true;
@@ -24,18 +25,21 @@ public class RocketScript : MonoBehaviour, IRocket {
     // Update is called once per frame
     void Update()
     {
-        // Check rocket going off-screen to trigger failed landing
-        if (baseScript.IsOnScreen(transform.localPosition))
-        {
-            baseScript.RegisterFailedLanding();
-        }
-
         //rotate the rocket around the asteroid (only if rocket is currently orbiting an asteroid)
         if (rotationCenter != null)
         {
             Vector3 convertedRotationCenter = transform.parent.TransformVector((Vector3)rotationCenter);
             transform.RotateAround(convertedRotationCenter, new Vector3(0, 0, 1), rotationSpeed * Time.deltaTime);
         }
+    }
+
+    // Called when the rocket goes off screen (NOTE: this will NOT
+    // fire if the rocket is visible in the unity editor screen, 
+    // so make sure for testing the rocket is not visible
+    // in the editor)
+    void OnBecameInvisible()
+    {
+        baseScript.RegisterFailedLanding();
     }
 
     // Collision with another object
@@ -68,7 +72,17 @@ public class RocketScript : MonoBehaviour, IRocket {
 
     public void UpdateRotationSpeed(int score)
     {
-        rotationSpeed += score * 10;
+        if (score < 2) {
+            rotationSpeed = initialRotationSpeed;
+        }
+        else if (score < 20)
+        {
+            rotationSpeed = initialRotationSpeed + 5 * score;
+        }
+        else
+        {
+            rotationSpeed = initialRotationSpeed + 5 * 20;
+        }
     }
 
     public void LaunchRocket()
