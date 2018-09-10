@@ -12,6 +12,7 @@ public class TitleUiScript : MonoBehaviour, ITitleUi {
     {
         titleText = gameObject.GetComponent<Text>();
         playButton = GameObject.Find("Play");
+        playButton.GetComponent<Image>().CrossFadeAlpha(1, .0f, true);
     }
 
     public void FadeIn()
