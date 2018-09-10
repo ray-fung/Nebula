@@ -67,8 +67,8 @@ public class BaseScript : MonoBehaviour, IBase {
         // Create a new asteroid and delete the old one (if there's more than 1 before creation)
         float xSpawn = xAreaAsteroidSpawn / 2;
         Vector3 newAsteroidPos = collidedAsteroid.GetPosition();
-        newAsteroidPos.y += maxYAwayAsteroidSpawn; //Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
-        newAsteroidPos.x = xSpawn; //Random.Range(-xSpawn, xSpawn);
+        newAsteroidPos.y += Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
+        newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
 
         IAsteroid newAsteroid = CreateAsteroid(newAsteroidPos);
         asteroids.Enqueue(newAsteroid);
