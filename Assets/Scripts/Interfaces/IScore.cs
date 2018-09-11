@@ -14,6 +14,12 @@ public interface IScore {
     int GetScore();
 
     /// <summary>
+    /// Returns the all time best score
+    /// </summary>
+    /// <returns></returns>
+    int GetHighscore();
+
+    /// <summary>
     /// Used to increment the score of the game and
     /// update the UI to reflect the current score
     /// </summary>
@@ -35,4 +41,11 @@ public interface IScore {
     /// of view
     /// </summary>
     void FadeOut();
+
+    /// <summary>
+    /// Compares the score to see if it is better than
+    /// the high score
+    /// </summary>
+    void CheckIfBest(int score);
+
 }

@@ -12,6 +12,8 @@ public class BaseScript : MonoBehaviour, IBase {
     [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
     [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
     [SerializeField] private GameObject gameOverDialogue;
+    [SerializeField] private GameObject scoreText;
+    [SerializeField] private GameObject highscoreText;
 
     private IRocket rocket;
     private Queue<IAsteroid> asteroids;
@@ -52,11 +54,16 @@ public class BaseScript : MonoBehaviour, IBase {
 
     public void RegisterFailedLanding()
     {
-        rocket.DestroyInstance();
-
-        // Display game over screen
+        // Display game over screen, check to see if current score is a new highscore
+        // if so, updates highscore
         scoreScript.FadeOut();
+        scoreText.GetComponent<Text>().text = scoreScript.GetScore().ToString();
+        scoreScript.CheckIfBest(scoreScript.GetScore());
+        highscoreText.GetComponent<Text>().text = scoreScript.GetHighscore().ToString();
         gameOverDialogue.SetActive(true);
+
+        // Destroy the rocket at the end so no null pointer expections in the code above
+        rocket.DestroyInstance();
     }
     
     public void RegisterSuccessfulLanding(IAsteroid collidedAsteroid)
@@ -104,7 +111,7 @@ public class BaseScript : MonoBehaviour, IBase {
         }
         asteroids.Clear();
         asteroids.Enqueue(newAsteroid);
-  
+
         scoreScript.ResetScore();
         int score = scoreScript.GetScore();
         rocket.UpdateRotationSpeed(score);
