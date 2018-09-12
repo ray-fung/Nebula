@@ -8,7 +8,7 @@ public class RocketScript : MonoBehaviour, IRocket {
 
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
     private int rotationSpeed; // rotation speed is in degrees per sec
-    private IStateManager baseScript;
+    private IStateManager stateManagerScript;
     private bool readyToLaunch; // Whether the rocket is in a state ready to launch
     private AudioSource thrusterSound;
 
@@ -17,7 +17,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     {
         rotationCenter = null;
         rotationSpeed = initialRotationSpeed;
-        baseScript = GameObject.Find("Base").GetComponent<StateManagerScript>();
+        stateManagerScript = GameObject.Find("State Manager").GetComponent<StateManagerScript>();
         thrusterSound = gameObject.GetComponent<AudioSource>();
         readyToLaunch = true;
     }
@@ -38,7 +38,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     // in the editor)
     void OnBecameInvisible()
     {
-        baseScript.RegisterFailedLanding();
+        stateManagerScript.RegisterFailedLanding();
     }
 
     // Collision with another object
@@ -60,7 +60,7 @@ public class RocketScript : MonoBehaviour, IRocket {
             transform.up = currentPos - asteroidCenter;
 
             readyToLaunch = true;
-            baseScript.RegisterSuccessfulLanding(asteroid);
+            stateManagerScript.RegisterSuccessfulLanding(asteroid);
         }
     }
 
