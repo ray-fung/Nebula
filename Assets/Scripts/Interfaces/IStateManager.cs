@@ -7,7 +7,7 @@ using UnityEngine;
 /// game state, communication between components
 /// and creation of objects
 /// </summary>
-public interface IBase {
+public interface IStateManager {
     /// <summary>
     /// Signals to the manager object that the
     /// game has begun and the user can interact with
