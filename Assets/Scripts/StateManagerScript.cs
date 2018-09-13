@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class BaseScript : MonoBehaviour, IBase {
+public class StateManagerScript : MonoBehaviour, IStateManager {
 
     [SerializeField] private float minYAwayAsteroidSpawn; //minimum y distance to spawn asteroid away from current one
     [SerializeField] private float maxYAwayAsteroidSpawn; //maximum y distance to spawn asteroid away from current one
@@ -97,14 +97,14 @@ public class BaseScript : MonoBehaviour, IBase {
     public void TriggerNewGame()
     {
         // Reset camera
-        mainCamera.transform.localPosition = new Vector3(0, 5.717994f, -930);
+        mainCamera.transform.localPosition = new Vector3(0, 66, -930);
 
         // Reset rocket
-        IRocket newRocket = CreateRocket(new Vector3(0f, -1.9f, -92f));
+        IRocket newRocket = CreateRocket(rocketPrefab.transform.position);
         rocket = newRocket;
 
         // Reset asteroids
-        IAsteroid newAsteroid = CreateAsteroid(new Vector3(0f, 22f, -92f));
+        IAsteroid newAsteroid = CreateAsteroid(asteroidPrefab.transform.position);
         foreach (IAsteroid asteroidInstance in asteroids)
         {
             asteroidInstance.DestroyInstance();
@@ -132,8 +132,8 @@ public class BaseScript : MonoBehaviour, IBase {
     /// </summary>
     private IRocket CreateRocket(Vector3 position)
     {
-        GameObject newRocket = Instantiate(rocketPrefab, transform);
-        newRocket.transform.localPosition = position;
+        GameObject newRocket = Instantiate(rocketPrefab);
+        newRocket.transform.position = position;
         newRocket.transform.rotation = new Quaternion(0, 0, 0, 0);
         newRocket.name = "Rocket";
         newRocket.GetComponent<SpriteRenderer>().sprite = rocketSprites[Random.Range(0, rocketSprites.Length)];
@@ -145,8 +145,8 @@ public class BaseScript : MonoBehaviour, IBase {
     /// </summary>
     private IAsteroid CreateAsteroid(Vector3 position)
     {
-        GameObject newAsteroid = Instantiate(asteroidPrefab, transform);
-        newAsteroid.transform.localPosition = position;
+        GameObject newAsteroid = Instantiate(asteroidPrefab);
+        newAsteroid.transform.position = position;
         newAsteroid.name = "Asteroid";
         newAsteroid.GetComponent<SpriteRenderer>().sprite = asteroidSprites[Random.Range(0, asteroidSprites.Length)];
 
