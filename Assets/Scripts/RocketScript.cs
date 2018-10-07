@@ -4,13 +4,13 @@ using System.Collections;
 public class RocketScript : MonoBehaviour, IRocket {
 
     [SerializeField] public int rocketSpeed; //speed for rocket movement
-    [SerializeField] private int initialRotationSpeed;
+    [SerializeField] private int initialRotationSpeed; // The rotation speed
 
     private Vector3? rotationCenter; //center of rotation (set equal to asteroid's center)
     private int rotationSpeed; // rotation speed is in degrees per sec
     private IStateManager stateManagerScript;
     private bool readyToLaunch; // Whether the rocket is in a state ready to launch
-    private AudioSource thrusterSound;
+    private AudioSource thrusterSound; // The sounds for the thrusters
 
     // Use this for initialization
     void Start()
@@ -64,11 +64,18 @@ public class RocketScript : MonoBehaviour, IRocket {
         }
     }
 
+    /// <summary>
+    /// Destroys this rocket
+    /// </summary>
     public void DestroyInstance()
     {
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Increases the rotation speed of the asteroids
+    /// </summary>
+    /// <param name="score">Score of the current game</param>
     public void UpdateRotationSpeed(int score)
     {
         if (score < 2) {
@@ -84,6 +91,9 @@ public class RocketScript : MonoBehaviour, IRocket {
         }
     }
 
+    /// <summary>
+    /// Launches the rocket from its current location
+    /// </summary>
     public void LaunchRocket()
     {
         if (readyToLaunch)

@@ -11,18 +11,18 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
     [SerializeField] private Sprite[] rocketSprites; // Sprites for rockets
     [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
     [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
-    [SerializeField] private GameObject gameOverDialogue;
-    [SerializeField] private GameObject scoreText;
-    [SerializeField] private GameObject highscoreText;
+    [SerializeField] private GameObject gameOverDialogue; // The game over screen
+    [SerializeField] private GameObject scoreText; // The object displaying the score
+    [SerializeField] private GameObject highscoreText; // The object that displays the highscore
 
-    private IRocket rocket;
-    private Queue<IAsteroid> asteroids;
-    private GameObject mainCamera;
+    private IRocket rocket; // The rocket the player controls
+    private Queue<IAsteroid> asteroids; // The first asteroid on screen
+    private GameObject mainCamera; // The camera that follows the player
     private IScore scoreScript; // Script to access the score
-    private IInputManager inputManager;
-    private ITitleUi titleUiScript;
-    private ICamera cameraScript;
-    private bool gameHasBegun;
+    private IInputManager inputManager; // Script that manages player input
+    private ITitleUi titleUiScript; // The screen that accesses the title UI
+    private ICamera cameraScript; // The script that controls how the camera moves
+    private bool gameHasBegun; // Detects whether or not the game has started
 
     // Use this for initialization
     void Start()
@@ -52,6 +52,9 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         }
     }
 
+    /// <summary>
+    /// Called whenever the rocket fails to make a proper landing on an asteroid
+    /// </summary>
     public void RegisterFailedLanding()
     {
         // Display game over screen, check to see if current score is a new highscore
@@ -66,6 +69,10 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         rocket.DestroyInstance();
     }
     
+    /// <summary>
+    /// Called whenever the rocket successfully lands on an asteroid.
+    /// </summary>
+    /// <param name="collidedAsteroid"> The asteroid object that the rocket collided with</param>
     public void RegisterSuccessfulLanding(IAsteroid collidedAsteroid)
     {
         // Move the camera updwards
@@ -77,6 +84,9 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         newAsteroidPos.y += Random.Range(minYAwayAsteroidSpawn, maxYAwayAsteroidSpawn);
         newAsteroidPos.x = Random.Range(-xSpawn, xSpawn);
 
+        // This creates a new asteroid after successfully landing on one
+        // Additionally it deletes the first landed asteroid if more than
+        // two exist.
         IAsteroid newAsteroid = CreateAsteroid(newAsteroidPos);
         asteroids.Enqueue(newAsteroid);
         if (asteroids.Count > 2)
@@ -93,7 +103,10 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
             asteroidObject.UpdateRotationSpeed(score);
         }
     }
-
+    
+    /// <summary>
+    /// Resets the settings so a new game can begin
+    /// </summary>
     public void TriggerNewGame()
     {
         // Reset camera
@@ -112,6 +125,7 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         asteroids.Clear();
         asteroids.Enqueue(newAsteroid);
 
+        // This resets the score and prepares the next game.
         scoreScript.ResetScore();
         int score = scoreScript.GetScore();
         rocket.UpdateRotationSpeed(score);
@@ -120,6 +134,11 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         gameOverDialogue.SetActive(false);
     }
 
+    /// <summary>
+    /// Called at the start of the program and
+    /// begins the game by fading out the
+    /// title and play button
+    /// </summary>
     public void BeginGame()
     {
         scoreScript.FadeIn();
