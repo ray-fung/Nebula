@@ -29,7 +29,7 @@ public class AsteroidScript : MonoBehaviour, IAsteroid {
         transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
 
         // Destroy if necessary
-        if(readyForDestruction && offScreen)
+        if (readyForDestruction && offScreen)
         {
             Destroy(gameObject);
         }

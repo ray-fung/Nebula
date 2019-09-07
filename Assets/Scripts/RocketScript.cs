@@ -38,7 +38,13 @@ public class RocketScript : MonoBehaviour, IRocket {
     // in the editor)
     void OnBecameInvisible()
     {
-        stateManagerScript.RegisterFailedLanding();
+        // This check is so that the rocket cannot be destroyed
+        // if the asteroid rotates the rocket outside the screen
+        // area. The rocket can only be destroyed if it is not on
+        // an asteroid and outside the screen.
+        if (!readyToLaunch) {
+            stateManagerScript.RegisterFailedLanding();
+        }
     }
 
     // Collision with another object
