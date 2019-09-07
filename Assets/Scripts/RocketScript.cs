@@ -79,7 +79,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     }
 
     /// <summary>
-    /// Increases the rotation speed of the asteroids
+    /// Increases the rotation speed of the rocket
     /// </summary>
     /// <param name="score">Score of the current game</param>
     public void UpdateRotationSpeed(int score)
@@ -95,6 +95,8 @@ public class RocketScript : MonoBehaviour, IRocket {
         {
             rotationSpeed = initialRotationSpeed + 5 * 20;
         }
+        Debug.Log("Rotation Speed Rocket: " + rotationSpeed);
+
     }
 
     /// <summary>

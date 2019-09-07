@@ -12,6 +12,7 @@ public class ScoreScript : MonoBehaviour, IScore {
     // Use this for initialization
     void Start()
     {
+        Debug.Log("ScoreScript initialization");
         score = 0;
         scoreText = GetComponent<Text>();
         scoreText.text = score.ToString();

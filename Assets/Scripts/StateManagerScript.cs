@@ -23,6 +23,8 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
     private ITitleUi titleUiScript; // The screen that accesses the title UI
     private ICamera cameraScript; // The script that controls how the camera moves
     private bool gameHasBegun; // Detects whether or not the game has started
+    private bool firstRun = true; // Used to test if it's the first run of the game
+                                  // Necessary for the text to show up after the first round
 
     // Use this for initialization
     void Start()
@@ -38,9 +40,9 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         inputManager = gameObject.GetComponent<InputManager>();
         titleUiScript = GameObject.Find("Title").GetComponent<TitleUiScript>();
         cameraScript = GameObject.Find("Main Camera").GetComponent<CameraScript>();
-
-        gameOverDialogue.SetActive(false);
         gameHasBegun = false;
+
+        gameOverDialogue.SetActive(true);
     }
 
     // Update is called once per frame
@@ -52,6 +54,18 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         }
     }
 
+    void LateUpdate() {
+        // This late update is used for the first round of the game
+        // It deactivates the game over dialogue so that it doesn't
+        // block the screen, but it allows the UI text to show up
+        // properly after the first run (because it didn't show up
+        // before due to some Unity quirks)
+        if (firstRun) {
+            gameOverDialogue.SetActive(false);
+            firstRun = false;
+        }
+    }
+
     /// <summary>
     /// Called whenever the rocket fails to make a proper landing on an asteroid
     /// </summary>
@@ -60,13 +74,10 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         // Display game over screen, check to see if current score is a new highscore
         // if so, updates highscore
         scoreText.GetComponent<Text>().text = scoreScript.GetScore().ToString();
-        Debug.Log("scoreText: " + scoreText.GetComponent<Text>().text);
         scoreScript.CheckIfBest(scoreScript.GetScore());
         highscoreText.GetComponent<Text>().text = scoreScript.GetHighscore().ToString();
-        Debug.Log("highscoreText: " + highscoreText.GetComponent<Text>().text);
         scoreScript.FadeOut();
         gameOverDialogue.SetActive(true);
-
         // Destroy the rocket at the end so no null pointer expections in the code above
         rocket.DestroyInstance();
     }
