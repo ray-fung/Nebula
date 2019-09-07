@@ -60,10 +60,8 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         // Display game over screen, check to see if current score is a new highscore
         // if so, updates highscore
         scoreText.GetComponent<Text>().text = scoreScript.GetScore().ToString();
-        Debug.Log("scoreText: " + scoreText.GetComponent<Text>().text);
         scoreScript.CheckIfBest(scoreScript.GetScore());
         highscoreText.GetComponent<Text>().text = scoreScript.GetHighscore().ToString();
-        Debug.Log("highscoreText: " + highscoreText.GetComponent<Text>().text);
         scoreScript.FadeOut();
         gameOverDialogue.SetActive(true);
 
