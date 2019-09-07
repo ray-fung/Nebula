@@ -95,7 +95,6 @@ public class RocketScript : MonoBehaviour, IRocket {
         {
             rotationSpeed = initialRotationSpeed + 5 * 20;
         }
-        Debug.Log("Rotation Speed Rocket: " + rotationSpeed);
 
     }
 

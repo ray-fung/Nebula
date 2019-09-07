@@ -88,6 +88,5 @@ public class AsteroidScript : MonoBehaviour, IAsteroid {
         {
             rotationSpeed = initialRotationSpeed + 75;
         }
-        Debug.Log("Rotation Speed Asteroid: " + rotationSpeed);
     }
 }
