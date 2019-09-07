@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,25 @@ public class CameraScript : MonoBehaviour, ICamera {
     [SerializeField] float cameraSpeed; // The speed of the camera
     [SerializeField] float cameraYDistanceFromAsteroid; // The Y distance from the asteroid
 
+    private const float ASPECT_RATIO = 9f / 16f;
+
     private Vector3? pointToStopMoving;
+
+    /// <summary>
+    /// Sets the aspect ratio for this screen (so that black bars are drawn appropriately).
+    /// See https://forum.unity.com/threads/how-to-force-black-bar-widescreen.21238/
+    /// </summary>
+    void Awake() {
+        double variance = ASPECT_RATIO / GetComponent<Camera>().aspect;
+
+        if (variance < 1.0f)
+            GetComponent<Camera>().rect = new Rect((float)((1.0 - variance) / 2.0), 0f, (float)variance, 1.0f);
+        else
+        {
+            variance = 1.0 / variance;
+            GetComponent<Camera>().rect = new Rect(0f, (float)((1.0 - variance) / 2.0), 1.0f, (float)variance);
+        }
+    }
 
     /// <summary>
     /// Updates the camera position whenever the player lands on another asteroid
