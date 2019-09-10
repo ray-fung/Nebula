@@ -10,9 +10,8 @@ using UnityEngine;
 public class CameraScript : MonoBehaviour, ICamera {
     [SerializeField] float cameraSpeed; // The speed of the camera
     [SerializeField] float cameraYDistanceFromAsteroid; // The Y distance from the asteroid to stop
-
+    private IBackground backgroundScript; // Move the background
     private const float ASPECT_RATIO = 9f / 16f;
-
     private Vector3? pointToStopMoving;
 
     /// <summary>
@@ -20,6 +19,8 @@ public class CameraScript : MonoBehaviour, ICamera {
     /// See https://forum.unity.com/threads/how-to-force-black-bar-widescreen.21238/
     /// </summary>
     void Awake() {
+        backgroundScript = GameObject.Find("Quad").GetComponent<BackgroundScript>();
+
         double variance = ASPECT_RATIO / GetComponent<Camera>().aspect;
 
         if (variance < 1.0f)
@@ -41,7 +42,9 @@ public class CameraScript : MonoBehaviour, ICamera {
             float cameraPosY = transform.localPosition.y;
             if (cameraPosY - pointToStopMoving.Value.y >= cameraYDistanceFromAsteroid)
             {
+                backgroundScript.StopBackground();
                 GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+                pointToStopMoving = null;
             }
         }
     }
@@ -54,6 +57,7 @@ public class CameraScript : MonoBehaviour, ICamera {
     {
         gameObject.GetComponent<Rigidbody2D>().velocity = Vector3.up * cameraSpeed;
         pointToStopMoving = pointToStop;
+        backgroundScript.UpdateBackground();
     }
 
     /// <summary>

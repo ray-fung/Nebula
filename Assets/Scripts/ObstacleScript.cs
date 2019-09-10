@@ -18,10 +18,8 @@ public class ObstacleScript : MonoBehaviour, IObstacle {
     void Start()
     {
         if (Random.value < 0.5f) {
-            Debug.Log("going right!");
             obstacleDirection = 1.0f;
-         } else { 
-            Debug.Log("going left!");
+         } else {
             obstacleDirection = -1.0f;
         }
         obstacleSpeed = Random.Range(minObstacleSpeed, maxObstacleSpeed);
