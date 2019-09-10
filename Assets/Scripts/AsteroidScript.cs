@@ -19,7 +19,7 @@ public class AsteroidScript : MonoBehaviour, IAsteroid {
     {
         rotationSpeed = initialRotationSpeed;
         readyForDestruction = false;
-        offScreen = false;
+        offScreen = true;
     }
 
     // Update is called once per frame

@@ -68,6 +68,14 @@ public class RocketScript : MonoBehaviour, IRocket {
             readyToLaunch = true;
             stateManagerScript.RegisterSuccessfulLanding(asteroid);
         }
+
+        // Collision if it's an obstacle
+        ObstacleScript obstacle = collidingObject.gameObject.GetComponent<ObstacleScript>();
+        if (obstacle != null)
+        {
+            obstacle.DestroyInstance();
+            stateManagerScript.RegisterFailedLanding();
+        }
     }
 
     /// <summary>

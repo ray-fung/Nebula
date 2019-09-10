@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class CameraScript : MonoBehaviour, ICamera {
     [SerializeField] float cameraSpeed; // The speed of the camera
-    [SerializeField] float cameraYDistanceFromAsteroid; // The Y distance from the asteroid
+    [SerializeField] float cameraYDistanceFromAsteroid; // The Y distance from the asteroid to stop
 
     private const float ASPECT_RATIO = 9f / 16f;
 

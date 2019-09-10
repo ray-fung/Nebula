@@ -9,7 +9,12 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
     [SerializeField] private float xAreaAsteroidSpawn; //x distance to vary spawning asteroid
     [SerializeField] private GameObject rocketPrefab; // prefab used to instantiate rocket
     [SerializeField] private Sprite[] rocketSprites; // Sprites for rockets
-    [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroid
+    [SerializeField] private GameObject asteroidPrefab; // prefab used to instantiate asteroids
+    [SerializeField] private GameObject obstaclePrefab; // prefab used to instantiate obstacles
+
+    [SerializeField] private int obstacleBufferRoom; // room that obstacles leave between planets
+    [SerializeField] private int obstacleSpawnStartingRound; // round at which the obstacles start spawning
+    [SerializeField] private float obstacleSpawnChance; // spawn chance, between 0-1, of an obstacle spawning between 2 asteroids
     [SerializeField] private Sprite[] asteroidSprites; // Sprites for asteroids
     [SerializeField] private GameObject gameOverDialogue; // The game over screen
     [SerializeField] private GameObject scoreText; // The object displaying the score
@@ -17,6 +22,7 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
 
     private IRocket rocket; // The rocket the player controls
     private Queue<IAsteroid> asteroids; // The first asteroid on screen
+    private Queue<IObstacle> obstacles; // The obstacles currently active
     private GameObject mainCamera; // The camera that follows the player
     private IScore scoreScript; // Script to access the score
     private IInputManager inputManager; // Script that manages player input
@@ -35,6 +41,7 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         {
             asteroids.Enqueue(asteroidObject.GetComponent<AsteroidScript>());
         }
+        obstacles = new Queue<IObstacle>();
         mainCamera = GameObject.Find("Main Camera");
         scoreScript = GameObject.Find("Score").GetComponent<ScoreScript>();
         inputManager = gameObject.GetComponent<InputManager>();
@@ -107,9 +114,16 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
             asteroids.Dequeue().DestroyInstance();
         }
 
+        // Randomly choose to create a new obstacle past the newly created asteroid
+        int score = scoreScript.GetScore();
+        if (score >= obstacleSpawnStartingRound && Random.value <= obstacleSpawnChance) {
+            float randY = Random.Range(newAsteroidPos.y + obstacleBufferRoom, newAsteroidPos.y + maxYAwayAsteroidSpawn - obstacleBufferRoom);
+            IObstacle obstacle = CreateObstacle(randY);
+            obstacles.Enqueue(obstacle);
+        }
+
         // Update score
         scoreScript.UpdateScore();
-        int score = scoreScript.GetScore();
         rocket.UpdateRotationSpeed(score);
         foreach (IAsteroid asteroidObject in asteroids)
         {
@@ -137,6 +151,13 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         }
         asteroids.Clear();
         asteroids.Enqueue(newAsteroid);
+
+        // Reset obstacles
+        foreach (IObstacle obstacleInstance in obstacles)
+        {
+            obstacleInstance.DestroyInstance();
+        }
+        obstacles.Clear();
 
         // This resets the score and prepares the next game.
         scoreScript.ResetScore();
@@ -183,5 +204,20 @@ public class StateManagerScript : MonoBehaviour, IStateManager {
         newAsteroid.GetComponent<SpriteRenderer>().sprite = asteroidSprites[Random.Range(0, asteroidSprites.Length)];
 
         return newAsteroid.GetComponent<AsteroidScript>();
+    }
+
+    private IObstacle CreateObstacle(float obstacleYPos)
+    {
+        GameObject newObstacle = Instantiate(obstaclePrefab);
+        
+        Vector3 pos = newObstacle.transform.position;
+        pos.y = obstacleYPos;
+        newObstacle.transform.position = pos;
+
+        newObstacle.transform.localRotation = Quaternion.Euler(0, 0, Random.Range(-90, 90));
+        newObstacle.name = "Obstacle";
+        ObstacleScript script = newObstacle.GetComponent<ObstacleScript>();
+
+        return script;
     }
 }
