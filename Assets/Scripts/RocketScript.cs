@@ -12,12 +12,15 @@ public class RocketScript : MonoBehaviour, IRocket {
     private bool readyToLaunch; // Whether the rocket is in a state ready to launch
     private AudioSource thrusterSound; // The sounds for the thrusters
 
+    private IBackground backgroundScript; // Move the background
+
     // Use this for initialization
     void Start()
     {
         rotationCenter = null;
         rotationSpeed = initialRotationSpeed;
         stateManagerScript = GameObject.Find("State Manager").GetComponent<StateManagerScript>();
+        backgroundScript = GameObject.Find("Quad").GetComponent<BackgroundScript>();
         thrusterSound = gameObject.GetComponent<AudioSource>();
         readyToLaunch = true;
     }
@@ -43,6 +46,7 @@ public class RocketScript : MonoBehaviour, IRocket {
         // area. The rocket can only be destroyed if it is not on
         // an asteroid and outside the screen.
         if (!readyToLaunch) {
+            backgroundScript.StopBackground();
             stateManagerScript.RegisterFailedLanding();
         }
     }
@@ -51,6 +55,7 @@ public class RocketScript : MonoBehaviour, IRocket {
     void OnTriggerEnter2D(Collider2D collidingObject)
     {
         // Collision if it's an asteroid and we're not orbiting it
+        backgroundScript.StopBackground();
         AsteroidScript asteroid = collidingObject.gameObject.GetComponent<AsteroidScript>();
         if (asteroid != null && asteroid.transform.localPosition != rotationCenter)
         {
@@ -125,6 +130,8 @@ public class RocketScript : MonoBehaviour, IRocket {
 
             rotationCenter = null;
             readyToLaunch = false;
+
+            backgroundScript.UpdateBackground();
         }
     }
 }
