@@ -21,4 +21,4 @@ One of the key lessons we discovered is a bug within the Unity engine. Currently
 
 Created by Ray Fung and Simon Duchastel
 
-If you have any issues, feel free to make an issue request! Otherwise, questions or comments can be sent to rayf1013@cs.washington.edu or simon@duchastel.com.
+If you have any issues, feel free to make an issue request! Otherwise, questions or comments can be sent to rayf1013@cs.washington.edu.
